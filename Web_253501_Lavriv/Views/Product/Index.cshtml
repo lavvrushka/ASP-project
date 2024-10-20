@@ -1,0 +1,94 @@
+﻿@model IEnumerable<Detail>
+
+@{
+    ViewData["Title"] = "Product List";
+    var categories = ViewBag.Categories as IEnumerable<Category>;
+    var currentPage = ViewBag.PageNo ?? 1;
+    var totalCount = ViewBag.TotalCount; 
+    var itemsPerPage = 3; 
+    var totalPages = (int)Math.Ceiling((double)totalCount / itemsPerPage);
+}
+
+<!-- Выбор категории -->
+<div class="col-2 border-2">
+    <ul class="nav ">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle"
+               data-bs-toggle="dropdown"
+               href="#"
+               role="button"
+               aria-expanded="false">
+                @ViewData["currentCategory"]
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item"
+                       asp-controller="product"
+                       asp-route-category=@null>Все</a>
+                </li>
+                @foreach (var item in categories)
+                {
+                    <li>
+                        <a class="dropdown-item"
+                           asp-controller="product"
+                           asp-route-category="@item.NormalizedName">
+                            @item.Name
+                        </a>
+                    </li>
+                }
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<!-- Список товаров -->
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <img src="~/@product.Image" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@product.Description</p>
+                        <p class="card-text"><strong>@product.Price</strong> руб.</p>
+
+                        <form asp-action="AddToCart" method="post">
+                            <input type="hidden" name="id" value="@product.Id" />
+                            <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path + @ViewContext.HttpContext.Request.QueryString" />
+                            <button type="submit" class="btn btn-primary" data-bs-toggle="tooltip" title="Добавить в корзину">
+                                Добавить в корзину
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Элементы управления для пагинации -->
+<div class="mt-4">
+    @if (currentPage > 1)
+    {
+        <a href="?pageNo=1" class="btn btn-secondary">Первая</a>
+        <a href="?pageNo=@(currentPage - 1)" class="btn btn-secondary">Предыдущая</a>
+    }
+
+    @if (currentPage < totalPages)
+    {
+        <a href="?pageNo=@(currentPage + 1)" class="btn btn-secondary">Следующая</a>
+        <a href="?pageNo=@totalPages" class="btn btn-secondary">Последняя</a>
+    }
+
+    <p class="mt-2">Страница @currentPage из @totalPages</p>
+</div>
+
+<!-- Скрипт для активации tooltip -->
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
