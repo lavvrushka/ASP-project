@@ -1,7 +1,5 @@
 # Web_253501_Lavriv
 
- Лабораторная 1-
-
  Лабораторная 2-[2_Частичные представления.V02.pdf](https://github.com/user-attachments/files/17450839/2_.V02.pdf)
 
  Лабораторная 3-[3_Работа с данными(4).V02.01.pdf](https://github.com/user-attachments/files/17450841/3_.4.V02.01.pdf)
