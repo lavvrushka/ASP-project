@@ -18,9 +18,9 @@ namespace Web_253501_Lavriv.API.Services.ProductService
         }
 
         public async Task<ResponseData<ListModel<Detail>>> GetProductListAsync(
-      string? categoryNormalizedName,
-      int pageNo = 1,
-      int pageSize = 3)
+          string? categoryNormalizedName,
+          int pageNo = 1,
+          int pageSize = 3)
         {
             if (pageSize > _maxPageSize)
                 pageSize = _maxPageSize;
@@ -102,35 +102,24 @@ namespace Web_253501_Lavriv.API.Services.ProductService
 
         public async Task<ResponseData<string>> SaveImageAsync(int id, IFormFile formFile)
         {
-            var detail = await _context.Details.FindAsync(id);
-            if (detail == null)
+            var product = await _context.Details.FindAsync(id);
+            if (product == null)
             {
-                return ResponseData<string>.Error("Продукт не найден");
+                return ResponseData<string>.Error("Product not found");
             }
 
-            if (formFile == null || formFile.Length == 0)
-            {
-                return ResponseData<string>.Error("Файл изображения не выбран");
-            }
-
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            var filePath = Path.Combine(uploadsFolder, formFile.FileName);
-
-            // Сохранение файла
+            var filePath = "/Images/" + formFile.FileName;
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await formFile.CopyToAsync(stream);
             }
 
-            detail.Image = filePath; // Обновите поле с изображением
+            product.Image = filePath;
+            _context.Details.Update(product);
             await _context.SaveChangesAsync();
 
             return ResponseData<string>.Success(filePath);
         }
+
     }
 }

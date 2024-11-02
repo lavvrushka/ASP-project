@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Plugins;
+using Microsoft.EntityFrameworkCore;
 using Web_253501_Lavriv.API.Data;
 using Web_253501_Lavriv.API.Services.ProductService;
 using Web_253501_Lavriv.Domain.Entities;
@@ -12,32 +12,43 @@ namespace Web_253501_Lavriv.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FruitsController : ControllerBase
+    public class DetailsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private ProductService _productService;
+        private readonly ProductService _productService;
 
-        public FruitsController(AppDbContext context)
+        public DetailsController(AppDbContext context)
         {
             _context = context;
             _productService = new ProductService(context);
         }
 
-        // GET: api/Details
+        // GET: api/details or api/details/category
         [HttpGet("{category?}")]
         public async Task<ActionResult<ResponseData<List<Detail>>>> GetDetails(
-        string? category,
-        int pageNo = 1,
-        int pageSize = 3)
+            string? category, int pageNo = 1, int pageSize = 3)
         {
-            return Ok(await _productService.GetProductListAsync(
-            category,
-            pageNo,
-            pageSize));
+            if (pageNo <= 0) pageNo = 1;
+            if (pageSize <= 0) pageSize = 3;
+
+            var result = await _productService.GetProductListAsync(category, pageNo, pageSize);
+            return Ok(result);
         }
 
-        // POST: api/Details
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // GET: api/details/5
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<ResponseData<Detail>>> GetDetail(int id)
+        {
+            var detail = await _context.Details.FindAsync(id);
+            if (detail == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new ResponseData<Detail> { Data = detail });
+        }
+
+        // POST: api/details
         [HttpPost]
         public async Task<ActionResult<Detail>> PostDetail(Detail detail)
         {
@@ -51,5 +62,53 @@ namespace Web_253501_Lavriv.API.Controllers
         {
             return _context.Details.Any(e => e.Id == id);
         }
+
+
+        // PUT: api/details/5
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> PutDetail(int id, Detail detail)
+        {
+            if (id != detail.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(detail).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DetailExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent(); // Успешное обновление
+        }
+
+        // DELETE: api/details/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteDetail(int id)
+        {
+            var detail = await _context.Details.FindAsync(id);
+            if (detail == null)
+            {
+                return NotFound(); // Вернуть 404, если сущность не найдена
+            }
+
+            _context.Details.Remove(detail);
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // Успешное удаление
+        }
+
     }
 }

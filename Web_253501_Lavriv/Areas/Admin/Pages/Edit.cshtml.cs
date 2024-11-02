@@ -5,74 +5,81 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-//using Microsoft.EntityFrameworkCore;
-//using WEB_253501_LAVRIV.Data;
 using Web_253501_Lavriv.Domain.Entities;
+using WEB_253501_LAVRIV.Services.CategoryService;
+using WEB_253501_LAVRIV.Services.ProductService; // Обратите внимание на пространство имен
 
 namespace WEB_253501_LAVRIV.Areas.Admin.Pages
 {
     public class EditModel : PageModel
     {
-        //private readonly WEB_253501_LAVRIV.Data.TemporaryDbContext _context;
+        private readonly IProductService _productService; // Используем IProductService вместо DbContext
+        private readonly ICategoryService _categoryService;
 
-        //public EditModel(WEB_253501_LAVRIV.Data.TemporaryDbContext context)
-        //{
-        //    _context = context;
-        //}
+        [BindProperty]
+        public IFormFile? UploadFile { get; set; } // Новый параметр для загрузки файла
+        public EditModel(IProductService productService, ICategoryService categoryService)
+        {
+            _productService = productService;
+            _categoryService = categoryService;
+        }
 
-        //[BindProperty]
-        //public Detail Detail { get; set; } = default!;
+        [BindProperty]
+        public Detail Detail { get; set; } = default!;
 
-        //public async Task<IActionResult> OnGetAsync(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> OnGetAsync(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        //    var detail =  await _context.Details.FirstOrDefaultAsync(m => m.Id == id);
-        //    if (detail == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    Detail = detail;
-        //   ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-        //    return Page();
-        //}
+            var response = await _productService.GetProductByIdAsync(id.Value); // Замените метод на ваш метод из сервиса
+            if (response.Data == null)
+            {
+                return NotFound();
+            }
+            Detail = response.Data; // Присваиваем полученные данные
 
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more information, see https://aka.ms/RazorPagesCRUD.
-        //public async Task<IActionResult> OnPostAsync()
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return Page();
-        //    }
+            // Заполняем список категорий
+            var categories = await _categoryService.GetCategoryListAsync(); // Получите список категорий
+            ViewData["CategoryId"] = new SelectList(categories.Data, "Id", "Name");
+            return Page();
+        }
 
-        //    _context.Attach(Detail).State = EntityState.Modified;
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!DetailExists(Detail.Id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
 
-        //    return RedirectToPage("./Index");
-        //}
+            try
+            {
+                // Передаём id, объект Detail и файл
+                await _productService.UpdateProductAsync(Detail.Id, Detail, UploadFile);
+            }
+            catch (Exception)
+            {
+                if (!await DetailExists(Detail.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-        //private bool DetailExists(int id)
-        //{
-        //    return _context.Details.Any(e => e.Id == id);
-        //}
+            return RedirectToPage("./Index");
+        }
+
+
+        private async Task<bool> DetailExists(int id)
+        {
+            var response = await _productService.GetProductByIdAsync(id);
+            return response.Data != null; // Проверяем, существует ли продукт
+        }
     }
 }

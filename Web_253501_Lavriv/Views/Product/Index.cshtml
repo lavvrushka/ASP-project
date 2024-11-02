@@ -44,18 +44,18 @@
 <!-- Список товаров -->
 <div class="container mt-4">
     <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var product in Model)
+        @foreach (var detail in Model)
         {
             <div class="col">
                 <div class="card h-100">
-                    <img src="~/@product.Image" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                    <img src="@detail.Image" class="card-img-top" alt="@detail.Name" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <h5 class="card-title">@product.Name</h5>
-                        <p class="card-text">@product.Description</p>
-                        <p class="card-text"><strong>@product.Price</strong> руб.</p>
+                        <h5 class="card-title">@detail.Name</h5>
+                        <p class="card-text">@detail.Description</p>
+                        <p class="card-text"><strong>@detail.Price</strong> руб.</p>
 
                         <form asp-action="AddToCart" method="post">
-                            <input type="hidden" name="id" value="@product.Id" />
+                            <input type="hidden" name="id" value="@detail.Id" />
                             <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path + @ViewContext.HttpContext.Request.QueryString" />
                             <button type="submit" class="btn btn-primary" data-bs-toggle="tooltip" title="Добавить в корзину">
                                 Добавить в корзину
@@ -72,18 +72,19 @@
 <div class="mt-4">
     @if (currentPage > 1)
     {
-        <a href="?pageNo=1" class="btn btn-secondary">Первая</a>
-        <a href="?pageNo=@(currentPage - 1)" class="btn btn-secondary">Предыдущая</a>
+        <a asp-action="Index" asp-route-category="@ViewData["currentCategory"]" asp-route-pageNo="1" class="btn btn-secondary">Первая</a>
+        <a asp-action="Index" asp-route-category="@ViewData["currentCategory"]" asp-route-pageNo="@(currentPage - 1)" class="btn btn-secondary">Предыдущая</a>
     }
 
     @if (currentPage < totalPages)
     {
-        <a href="?pageNo=@(currentPage + 1)" class="btn btn-secondary">Следующая</a>
-        <a href="?pageNo=@totalPages" class="btn btn-secondary">Последняя</a>
+        <a asp-action="Index" asp-route-category="@ViewData["currentCategory"]" asp-route-pageNo="@(currentPage + 1)" class="btn btn-secondary">Следующая</a>
+        <a asp-action="Index" asp-route-category="@ViewData["currentCategory"]" asp-route-pageNo="@(totalPages)" class="btn btn-secondary">Последняя</a>
     }
 
     <p class="mt-2">Страница @currentPage из @totalPages</p>
 </div>
+
 
 <!-- Скрипт для активации tooltip -->
 <script>

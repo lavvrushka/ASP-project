@@ -6,5 +6,5 @@
 <div class="navbar-nav">
     <a class="nav-item nav-link @(controller == "home" ? "active" : "")" asp-controller="Home" asp-action="Index">Лб 1</a>
     <a class="nav-item nav-link @(controller == "product" ? "active" : "")" asp-controller="product" asp-action="Index">Каталог</a>
-    <a class="nav-item nav-link @(area == "admin" && controller == "admin" ? "active" : "")" asp-area="Admin" asp-controller="Admin" asp-action="Index">Администрирование</a>
+    <a class="nav-item nav-link @(area == "admin" ? "active" : "")" asp-area="Admin" asp-page="/Index">Администрирование</a>
 </div>

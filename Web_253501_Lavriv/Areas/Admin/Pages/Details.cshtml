@@ -1,4 +1,4 @@
-﻿@* @page *@
+﻿@page
 @model WEB_253501_LAVRIV.Areas.Admin.Pages.DetailsModel
 
 @{
@@ -11,7 +11,8 @@
     <h4>Detail</h4>
     <hr />
     <dl class="row">
-@*         <dt class="col-sm-2">
+        @if (Model.Detail != null){
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Detail.Name)
         </dt>
         <dd class="col-sm-10">
@@ -19,8 +20,8 @@
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Detail.Description)
-        </dt> *@
-@*         <dd class="col-sm-10">
+        </dt>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Detail.Description)
         </dd>
         <dt class="col-sm-2">
@@ -39,7 +40,9 @@
             @Html.DisplayNameFor(model => model.Detail.Image)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Detail.Image)
+            <!-- Отображение изображения -->
+            <img src="@Url.Content($"{Model.Detail.Image}")" alt="Detail Image" class="img-fluid" />
+
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Detail.MimeType)
@@ -47,9 +50,15 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Detail.MimeType)
         </dd>
+        }
+
+        else
+        {
+            <p>Детали не найдены.</p>
+        }
     </dl>
 </div>
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.Detail.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a> *@
+    <a asp-page="./Index">Back to List</a>
 </div>
