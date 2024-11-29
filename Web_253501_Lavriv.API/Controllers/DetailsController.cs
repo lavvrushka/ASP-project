@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_253501_Lavriv.API.Data;
@@ -25,6 +26,7 @@ namespace Web_253501_Lavriv.API.Controllers
 
         // GET: api/details or api/details/category
         [HttpGet("{category?}")]
+        [Authorize] // Разрешить доступ всем пользователям
         public async Task<ActionResult<ResponseData<List<Detail>>>> GetDetails(
             string? category, int pageNo = 1, int pageSize = 3)
         {
@@ -37,6 +39,7 @@ namespace Web_253501_Lavriv.API.Controllers
 
         // GET: api/details/5
         [HttpGet("{id:int}")]
+        [AllowAnonymous] // Разрешить доступ всем пользователям
         public async Task<ActionResult<ResponseData<Detail>>> GetDetail(int id)
         {
             var detail = await _context.Details.FindAsync(id);
@@ -50,6 +53,7 @@ namespace Web_253501_Lavriv.API.Controllers
 
         // POST: api/details
         [HttpPost]
+        [Authorize(Policy = "admin")] // Доступ только для пользователей с политикой "admin"
         public async Task<ActionResult<Detail>> PostDetail(Detail detail)
         {
             _context.Details.Add(detail);
@@ -63,9 +67,9 @@ namespace Web_253501_Lavriv.API.Controllers
             return _context.Details.Any(e => e.Id == id);
         }
 
-
         // PUT: api/details/5
         [HttpPut("{id:int}")]
+        
         public async Task<IActionResult> PutDetail(int id, Detail detail)
         {
             if (id != detail.Id)
@@ -96,6 +100,7 @@ namespace Web_253501_Lavriv.API.Controllers
 
         // DELETE: api/details/5
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "admin")] // Доступ только для пользователей с политикой "admin"
         public async Task<IActionResult> DeleteDetail(int id)
         {
             var detail = await _context.Details.FindAsync(id);
@@ -109,6 +114,5 @@ namespace Web_253501_Lavriv.API.Controllers
 
             return NoContent(); // Успешное удаление
         }
-
     }
 }

@@ -1,0 +1,22 @@
+﻿@using Web_253501_Lavriv.Domain.Entities
+
+<h3>Detail Details</h3>
+
+@if (SelectedDetail != null)
+{
+    <div>
+        <h4>@SelectedDetail.Name</h4>
+        <p><strong>Description:</strong> @SelectedDetail.Description</p>
+        <p><strong>Price:</strong> @SelectedDetail.Price</p>
+        <p><strong>Category:</strong> @SelectedDetail.CategoryId</p>
+    </div>
+}
+else
+{
+    <p>Please select a Detail to view details.</p>
+}
+
+@code {
+    // Обратите внимание на правильное имя параметра: SelectedDetail
+    [Parameter] public Detail SelectedDetail { get; set; }
+}

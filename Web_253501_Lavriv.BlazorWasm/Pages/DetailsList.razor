@@ -1,0 +1,64 @@
+﻿@using Web_253501_Lavriv.BlazorWasm.Services
+@using Web_253501_Lavriv.Domain.Entities
+@inject IDataService DataService
+@implements IDisposable
+
+<h3>Details List</h3>
+
+@if (DataService.Details == null || !DataService.Details.Any())
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detail in DataService.Details)
+            {
+                <tr>
+                    <td>@detail.Name</td>
+                    <td>@detail.Description</td>
+                    <td>@detail.Price</td>
+                    <td>@detail.CategoryId</td>
+                    <td>
+                        <!-- Кнопка для выбора объекта -->
+                        <button class="btn btn-info" @onclick="() => OnDetailSelected(detail.Id)">
+                            🔍
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    // Событие, которое будет вызываться при клике на кнопку "View Details"
+    [Parameter] public EventCallback<int> DetailSelected { get; set; }
+
+    protected override void OnInitialized()
+    {
+        DataService.DataLoaded += StateHasChanged; // Подписываемся на событие для обновления компонента после загрузки данных
+    }
+
+    // Обработчик клика на кнопке, передает ID выбранного объекта в родительский компонент
+    private void OnDetailSelected(int id)
+    {
+        // Вызов события, передаем ID выбранного объекта
+        DetailSelected.InvokeAsync(id);
+    }
+
+    public void Dispose()
+    {
+        DataService.DataLoaded -= StateHasChanged; // Отписываемся от события при уничтожении компонента
+    }
+}

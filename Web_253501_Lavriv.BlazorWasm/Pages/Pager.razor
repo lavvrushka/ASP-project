@@ -1,0 +1,63 @@
+﻿@using Web_253501_Lavriv.BlazorWasm.Services
+@using Web_253501_Lavriv.Domain.Entities
+@inject IDataService DataService
+
+@if (DataService.TotalPages > 1)
+{
+    <div class="pagination">
+        <!-- Кнопка "Предыдущая страница" -->
+        @if (DataService.CurrentPage > 1)
+        {
+            <button class="btn btn-primary" @onclick="() => ChangePage(DataService.CurrentPage - 1)">Previous</button>
+        }
+
+        <!-- Кнопки для всех страниц -->
+        @for (int i = 1; i <= DataService.TotalPages; i++)
+        {
+            <button class="btn @(i == DataService.CurrentPage ? "btn-success" : "btn-outline-primary")"
+                    @onclick="() => ChangePage(i)">
+                @i
+            </button>
+        }
+
+        <!-- Кнопка "Следующая страница" -->
+        @if (DataService.CurrentPage < DataService.TotalPages)
+        {
+            <button class="btn btn-primary" @onclick="() => ChangePage(DataService.CurrentPage + 1)">Next</button>
+        }
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Загружаем данные для первой страницы
+        await LoadPageData(1);
+    }
+
+    private async Task ChangePage(int pageNumber)
+    {
+        // Проверяем, не пытаемся ли перейти на несуществующую страницу
+        if (pageNumber < 1 || pageNumber > DataService.TotalPages || pageNumber == DataService.CurrentPage)
+            return;
+
+        // Загружаем данные для выбранной страницы
+        await LoadPageData(pageNumber);
+    }
+
+    private async Task LoadPageData(int pageNumber)
+    {
+        // Загружаем данные для выбранной страницы
+        await DataService.GetDetailsListAsync(pageNumber);
+
+        // Если данные загружены успешно, обновляем компонент
+        if (DataService.Success)
+        {
+            StateHasChanged(); // Обновляем компонент
+        }
+        else
+        {
+            Console.WriteLine(DataService.ErrorMessage ?? "Error fetching data.");
+        }
+    }
+}
